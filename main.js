@@ -5,93 +5,108 @@ const context = canvas.getContext('2d');
 const width = canvas.width;
 const height = canvas.height;
 
+// Grid Specs
+//  - Line Width:
 const gridLineWidth = 2;
+//  - Number of squares:
+const numCol = 10;
+const numRow = 10;
 
-// Iteration 1
+const imageWidth = width / numRow;
+const imageHeigth = height / numCol;
+
+// Draw Background Grid
 function drawGrid() {
   context.fillStyle = 'black';
   for (let i = 0; i < 15; i++) {
-    context.fillRect(i * (width / 10) - gridLineWidth / 2, 0, gridLineWidth, height);
-    context.fillRect(0, i * (width / 10) - gridLineWidth / 2, height, gridLineWidth);
+    context.fillRect(i * (width / numRow) - gridLineWidth / 2, 0, gridLineWidth, height);
+    context.fillRect(0, i * (width / numCol) - gridLineWidth / 2, width, gridLineWidth);
   }
 }
 
+// Draw Player
 function drawPlayer(row, col) {
   const characterImageURL = '/images/character-down.png';
 
   const characterImage = new Image();
   characterImage.src = characterImageURL;
 
-  const imageWidth = 2;
-  const imageHeigth = 2;
-  // context.fillRect((row*width/10)+(width/20-15),col*width/10+(height/20-15),30,30); // 15 is half the size of the square !!!
-  // context.fillRect((col*width/10)+(width/20-15),row*width/10+(height/20-15),30,30); // 15 is half the size of the square !!!
   characterImage.addEventListener('load', () => {
-    context.drawImage(
-      characterImage,
-      (row * width) / 10 + (width / 20 - 15),
-      (col * width) / 10 + (height / 20 - 15),
-      100,
-      100
-    );
+    context.drawImage(characterImage, (row * width) / 10, (col * width) / 10, imageWidth, imageHeigth);
   });
 }
 
-class Treasure {
-  constructor(row, col) {
-    this.row = row;
-    this.col = col;
-  }
-
-  setRandomPosition() {
-    this.row = Math.floor(Math.random() * 10);
-    this.col = Math.floor(Math.random() * 10);
-  }
-}
-
+// Draw Treasure
 function drawTreasure() {
-  const treasurePostion = new Treasure();
-  treasurePostion.setRandomPosition();
-  context.fillStyle = 'green';
+  const treasureImageURL = '/images/treasure.png';
+  const treasureImage = new Image();
+  treasureImage.src = treasureImageURL;
 
-  context.fillRect(
-    (treasurePostion.col * width) / 10 + (width / 20 - 15),
-    (treasurePostion.row * width) / 10 + (height / 20 - 15),
-    30,
-    30
-  ); // 15 is half the size of the square !!!
+  /* const treasure = new Treasure();
+  treasure.setRandomPosition(); */
+
+  treasureImage.addEventListener('load', () => {
+    context.drawImage(treasureImage, (treasure.row * width) / 10, (treasure.col * width) / 10, imageWidth, imageHeigth);
+  });
+  context.drawImage(treasureImage, (treasure.row * width) / 10, (treasure.col * width) / 10, imageWidth, imageHeigth);
 }
 
-function drawEverything() {
+// Clear Image
+function clearImage() {
+  context.clearRect(0, 0, width, height);
+}
+
+//Function that, clears the image, draws the grid, draws the player and at the end it draws the treasure
+function drawEverything(character) {
+  clearImage();
   drawGrid();
-  drawPlayer(2, 3);
-  /*   drawPlayer(3,2); //-----> This row and col should point the character.row and character.col.
+  drawPlayer(character.row, character.col);
   drawTreasure();
-*/
 }
 
-/* 
+function checksOverLapping(character, treasure) {
+  if (character.row === treasure.row && character.col === treasure.col) {
+    return true;
+  }
+}
+
+// Creates the character
+const character = new Character();
+
+// Creates the treasure
+const treasure = new Treasure();
+treasure.setRandomPosition();
+
+// Draws everything before any movement is done.
+drawEverything(character);
 
 window.addEventListener('keydown', (event) => {
-    // Stop the default behavior (moving the screen to the left/up/right/down)
-    event.preventDefault();
-    
-    const character = new Character();
-    // React based on the key pressed
-    switch (event.keyCode) {
-        case 37: // Arrow Left
-        character.moveLeft();
-        break;
-        case 38: // Arrow Up
-        character.moveUp();
-        break;
-        case 39: // Arrow right
-        character.moveRight();
-        break;
-        case 40: //Arrow Down
-        character.moveDown();
-        break;
-    }
-}; */
+  // Stop the default behavior (moving the screen to the left/up/right/down)
+  event.preventDefault();
 
-drawEverything();
+  // React based on the key pressed
+  switch (event.keyCode) {
+    case 37: // Arrow Left
+      character.moveLeft();
+      drawEverything(character);
+      break;
+    case 38: // Arrow Up
+      character.moveUp();
+      drawEverything(character);
+      break;
+    case 39: // Arrow right
+      character.moveRight();
+      drawEverything(character);
+      break;
+    case 40: //Arrow Down
+      character.moveDown();
+      drawEverything(character);
+      break;
+  }
+
+  // If position of character and treasure overlap, it sets new coordinates for the treasure and paints everything with new coordinates for treasure.
+  if (checksOverLapping(character, treasure)) {
+    treasure.setRandomPosition();
+    drawEverything(character);
+  }
+});

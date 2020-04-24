@@ -1,19 +1,19 @@
 class Character {
-    constructor (row,col) {
-        this.row = row; 
-        this.col = col; 
-    }
-    moveUp() {
-        this.row--
-    }
+  constructor() {
+    this.col = 0; //col
+    this.row = 0; // row
+  }
+  moveUp() {
+    this.col--;
+  }
 
-    moveRight() {
-        this.col++
-    }
-    moveDown() {
-        this.row++
-    }
-    moveLeft() {
-        this.col--
-    }
+  moveRight() {
+    this.row++;
+  }
+  moveDown() {
+    this.col++;
+  }
+  moveLeft() {
+    this.row--;
+  }
 }
